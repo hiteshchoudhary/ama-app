@@ -7,8 +7,8 @@ import { Toaster } from '@/components/ui/toaster';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'A simple fun app for AMA',
-  description: 'Have fun with AMA',
+  title: 'True Feedback',
+  description: 'Real feedback from real people.',
 };
 
 interface RootLayoutProps {
