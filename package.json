@@ -29,7 +29,7 @@
     "embla-carousel-react": "^8.0.0-rc17",
     "lucide-react": "^0.303.0",
     "mongoose": "^8.0.3",
-    "next": "14.0.4",
+    "next": "^14.2.1",
     "next-auth": "^4.24.5",
     "openai": "^4.24.1",
     "react": "^18",
