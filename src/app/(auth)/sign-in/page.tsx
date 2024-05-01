@@ -17,6 +17,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { signInSchema } from "@/schemas/signInSchema";
+import { AuthError } from "next-auth";
+import { login } from "@/actions/auth";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -31,34 +33,8 @@ export default function SignInForm() {
 
   const { toast } = useToast();
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-    
-
-    const result = await signIn("credentials", {
-      identifier: data.identifier,
-      password: data.password,
-    });
-
-    console.log("result", result)
-
-    if (result?.error) {
-      if (result.error === "CredentialsSignin") {
-        toast({
-          title: "Login Failed",
-          description: "Incorrect username or password",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-    }
-
-    if (result?.url) {
-      router.replace("/");
-    }
+    const response =  await login(data);
+    console.log("response", response)
   };
 
   return (
