@@ -1,7 +1,9 @@
 import MessageCarousel from "@/components/CarouselContent";
-
-export default function Home() {
+import { auth } from '@/app/auth';
+export default async function Home() {
   const year = new Date().getFullYear();
+  const session = await auth();
+
 
   return (
     <>
@@ -16,6 +18,7 @@ export default function Home() {
           </p>
         </section>
         <MessageCarousel/>
+        {JSON.stringify(session, null, 2)}
       </main>
 
       {/* Footer */}

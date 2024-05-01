@@ -10,4 +10,3 @@ export function SignOut(props: React.ComponentPropsWithRef<typeof Button>) {
       </Button>
     );
   }
-  

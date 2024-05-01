@@ -30,6 +30,7 @@
     "dayjs": "^1.11.10",
     "embla-carousel-autoplay": "^8.0.0-rc17",
     "embla-carousel-react": "^8.0.0-rc17",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.303.0",
     "mongoose": "^8.0.3",
     "next": "14.2.2",

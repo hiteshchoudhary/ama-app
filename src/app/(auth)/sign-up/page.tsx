@@ -1,5 +1,5 @@
 'use client';
-
+import { useFormState } from 'react-dom';
 import { ApiResponse } from '@/types/ApiResponse';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ import axios, { AxiosError } from 'axios';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signUpSchema } from '@/schemas/signUpSchema';
-import { checkUniqueEmail } from '@/actions/auth';
+import { checkUniqueEmail, saveUser } from '@/actions/auth';
 
 export default function SignUpForm() {
   const [username, setUsername] = useState('');
@@ -47,15 +47,16 @@ export default function SignUpForm() {
     const checkUsernameUnique = async () => {
       if (debouncedUsername) {
         setIsCheckingUsername(true);
-        setUsernameMessage(''); // Reset message
+        setUsernameMessage('');
         try {
           const response = await checkUniqueEmail(debouncedUsername)
-          if(response.type === "")
+          if(response?.type === "error"){
+            setUsernameMessage(response?.message)
+          } else {
+            setUsernameMessage(response?.message)
+          }
         } catch (error) {
-          const axiosError = error as AxiosError<ApiResponse>;
-          setUsernameMessage(
-            axiosError.response?.data.message ?? 'Error checking username'
-          );
+          setUsernameMessage('Error checking username')
         } finally {
           setIsCheckingUsername(false);
         }
@@ -67,14 +68,24 @@ export default function SignUpForm() {
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
     try {
-      const response = await axios.post<ApiResponse>('/api/sign-up', data);
+      const response = await saveUser(data);
 
-      toast({
-        title: 'Success',
-        description: response.data.message,
-      });
+      if(response?.type === "error"){
+        toast({
+          title: 'Sign Up Failed',
+          description: response?.message,
+          variant: 'destructive',
+        });
+      }
 
-      router.replace(`/verify/${username}`);
+      console.log(response)
+
+      // toast({
+      //   title: 'Success',
+      //   description: response.data.message,
+      // });
+
+      // router.replace(`/verify/${username}`);
 
       setIsSubmitting(false);
     } catch (error) {
