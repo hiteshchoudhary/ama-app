@@ -22,6 +22,7 @@ import axios, { AxiosError } from 'axios';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signUpSchema } from '@/schemas/signUpSchema';
+import { checkUniqueEmail } from '@/actions/auth';
 
 export default function SignUpForm() {
   const [username, setUsername] = useState('');
@@ -48,10 +49,8 @@ export default function SignUpForm() {
         setIsCheckingUsername(true);
         setUsernameMessage(''); // Reset message
         try {
-          const response = await axios.get<ApiResponse>(
-            `/api/check-username-unique?username=${debouncedUsername}`
-          );
-          setUsernameMessage(response.data.message);
+          const response = await checkUniqueEmail(debouncedUsername)
+          if(response.type === "")
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
           setUsernameMessage(

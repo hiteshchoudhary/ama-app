@@ -1,13 +1,12 @@
-'use client'
-
 import React from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
 import { Button } from './ui/button';
 import { User } from 'next-auth';
+import { auth } from '@/app/auth';
+import { SignOut } from './OauthButton';
 
-function Navbar() {
-  const { data: session } = useSession();
+export default async function Navbar() {
+  const session = await auth();
   const user : User = session?.user;
 
   return (
@@ -17,14 +16,15 @@ function Navbar() {
           True Feedback
         </a>
         {session ? (
-          <>
+          <div className='flex flex-row items-center gap-4'>
             <span className="mr-4">
               Welcome, {user.username || user.email}
             </span>
-            <Button onClick={() => signOut()} className="w-full md:w-auto bg-slate-100 text-black" variant='outline'>
-              Logout
-            </Button>
-          </>
+            <SignOut className="w-full md:w-auto text-black"/>
+            <Link href="/dashboard">
+              <Button variant="outline" className="w-full md:w-auto text-black">Dashboard</Button>
+            </Link>
+          </div>
         ) : (
           <Link href="/sign-in">
             <Button className="w-full md:w-auto bg-slate-100 text-black" variant={'outline'}>Login</Button>
@@ -34,5 +34,3 @@ function Navbar() {
     </nav>
   );
 }
-
-export default Navbar;
