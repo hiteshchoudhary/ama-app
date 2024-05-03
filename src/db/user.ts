@@ -24,12 +24,24 @@ export const loginUser = async (identifier: string, password: string) => {
     if (!data) {
         return null;
     }
-    console.log("data", data)
-    console.log()
     const isValid = await bcrypt.compare(password, data.password);
-    console.log("isValid", isValid)
     if (!isValid) {
       return null;
     }
     return data;
 }
+
+export const createUser = async (username: string, email: string, password: string) => {
+  const { error } = await nextAuthClient.from("users").insert([{ username, email, password }]);
+  if (error) {
+    return {
+      type: "error",
+      message: "Failed to create user",
+    }
+  } else {
+    return {
+      type: "success",
+      message: "User created successfully",
+    }
+  }
+};

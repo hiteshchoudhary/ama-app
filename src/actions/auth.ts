@@ -5,12 +5,11 @@ import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import { signUpSchema, usernameValidation } from "@/schemas/signUpSchema";
 import { nextAuthClient } from "@/lib/supabase/private";
 import { signInSchema } from "@/schemas/signInSchema";
-import { loginUser } from "@/db/user";
-import { AuthError } from "next-auth";
+import { CredentialsSignin } from "next-auth";
 import { signIn } from "@/app/auth";
+import { createUser } from "@/db/user";
 
 export async function login(data: z.infer<typeof signInSchema>) {
-
   const validateFields = signInSchema.safeParse(data);
   if (!validateFields.success) {
     return {
@@ -24,44 +23,42 @@ export async function login(data: z.infer<typeof signInSchema>) {
 
   try {
     await signIn("credentials", {
+      redirect: false,
       identifier,
       password,
     });
   } catch (error) {
-    if (error instanceof AuthError) {
+    if (error instanceof CredentialsSignin) {
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "Invalid credentials" };
+          return {
+            type: "error",
+            message: "Invalid credentials",
+          };
         default:
-          return { error: "Something went wrong" };
+          return {
+            type: "error",
+            message: "Something went wrong",
+          };
       }
+    } else {
+      return {
+        type: "error",
+        message: "Something went wrong",
+      };
     }
-
-    throw error;
   }
-
-  const user = await loginUser(identifier, password);
-
-  if (!user) {
-    return {
-      type: "error",
-      message: "Invalid credentials",
-    };
-  }
-
 }
 
-
-
 export async function saveUser(data: z.infer<typeof signUpSchema>) {
-  const { username, email, password } = data
-  const { data:user, error } = await nextAuthClient
-  .from("users")
-  .select("username, isVerified")
-  .or(`username.eq.${username},email.eq.${email}`)
-  .eq("isVerified", true)
+  const { username, email, password } = data;
+  const { data: user, error } = await nextAuthClient
+    .from("users")
+    .select("username, isVerified")
+    .or(`username.eq.${username},email.eq.${email}`)
+    .eq("isVerified", true);
 
-  console.log("user", user)
+  console.log("user", user);
 
   if (user?.length !== 0) {
     return {
@@ -70,10 +67,8 @@ export async function saveUser(data: z.infer<typeof signUpSchema>) {
     };
   }
   const hashedPassword = await bcrypt.hash(password, 10);
-  let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiryDate = new Date();
-  expiryDate.setHours(expiryDate.getHours() + 1);
-
+  const response = await createUser(username, email, hashedPassword);
+  return response
 }
 
 const UsernameQuerySchema = z.object({

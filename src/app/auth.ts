@@ -26,12 +26,10 @@ export const config = {
     }),
     Credentials({
       async authorize(credentials:any) {
-        console.log("credentials", credentials)
         const user = await loginUser(
           credentials.identifier,
           credentials.password
         );
-        console.log("user", user)
         if (!user) {
           return null;
         }

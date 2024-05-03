@@ -76,15 +76,12 @@ export default function SignUpForm() {
           description: response?.message,
           variant: 'destructive',
         });
+      } else {
+        toast({
+          title: 'Success',
+          description: response?.message,
+        });
       }
-
-      console.log(response)
-
-      // toast({
-      //   title: 'Success',
-      //   description: response.data.message,
-      // });
-
       // router.replace(`/verify/${username}`);
 
       setIsSubmitting(false);
