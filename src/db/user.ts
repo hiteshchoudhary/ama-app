@@ -1,5 +1,6 @@
-import { AuthError } from "next-auth";
+import { AuthError, User } from "next-auth";
 import { nextAuthClient } from "@/lib/supabase/private";
+import { auth } from "@/app/auth";
 import bcrypt from "bcryptjs";
 
 class InvalidTypeError extends AuthError {
