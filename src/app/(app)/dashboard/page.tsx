@@ -5,10 +5,14 @@ import { Separator } from "@/components/ui/separator";
 import { auth } from "@/app/auth";
 import { User } from "next-auth";
 import CopyToClipboard from "@/components/CopyToClipboard";
+import { redirect } from "next/navigation";
 
 async function UserDashboard() {
   const session = await auth();
   const _user: User = session?.user;
+  if (!_user) {
+    redirect("/");
+  }
 
   const response = await getMessages();
   const messages = response.messages;
