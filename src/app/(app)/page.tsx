@@ -1,6 +1,8 @@
 import MessageCarousel from "@/components/CarouselContent";
+import { auth } from "@/app/auth";
 export default async function Home() {
   const year = new Date().getFullYear();
+  const session = await auth();
 
   return (
     <>
@@ -14,7 +16,8 @@ export default async function Home() {
             True Feedback - Where your identity remains a secret.
           </p>
         </section>
-        <MessageCarousel/>
+        <MessageCarousel />
+        {JSON.stringify(session, null, 2)}
       </main>
 
       {/* Footer */}

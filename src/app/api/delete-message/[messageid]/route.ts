@@ -1,5 +1,4 @@
 import UserModel from "@/model/User";
-import dbConnect from "@/lib/dbConnect";
 import { User } from "next-auth";
 import { Message } from "@/model/User";
 import { NextRequest } from "next/server";
@@ -10,7 +9,6 @@ export async function DELETE(
   { params }: { params: { messageid: string } }
 ) {
   const messageId = params.messageid;
-  await dbConnect();
   const session = await auth();
   const _user: User = session?.user;
   if (!session || !_user) {

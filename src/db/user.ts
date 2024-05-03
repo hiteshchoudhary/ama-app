@@ -92,3 +92,34 @@ export const createUser = async (
     };
   }
 };
+
+export const changeAcceptMessages = async (isAcceptingMessages: boolean) => {
+  const session = await auth();
+  const _user: User = session?.user;
+
+  if (!session || !_user) {
+    return {
+      type: "error",
+      message: "Not authenticated",
+    };
+  }
+
+  const userId = _user.id;
+
+  const { data, error } = await nextAuthClient
+    .from("users")
+    .update({ isAcceptingMessages: isAcceptingMessages })
+    .eq("id", userId);
+
+  if (error) {
+    return {
+      type: "error",
+      message: "Failed to update user",
+    };
+  } else {
+    return {
+      type: "success",
+      message: "Setting updated successfully",
+    };
+  }
+};
