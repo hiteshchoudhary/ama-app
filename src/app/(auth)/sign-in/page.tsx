@@ -33,7 +33,6 @@ export default function SignInForm() {
   const { toast } = useToast();
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
     const response = await login(data);
-
     if (response?.type === "error") {
       toast({
         title: "Error",
@@ -45,7 +44,7 @@ export default function SignInForm() {
         title: "Success",
         description: "Logged in successfully",
       });
-      router.push("/");
+      router.replace('/dashboard');
     }
   };
 

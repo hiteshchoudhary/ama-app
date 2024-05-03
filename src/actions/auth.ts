@@ -27,7 +27,7 @@ export async function login(data: z.infer<typeof signInSchema>) {
       identifier,
       password,
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof CredentialsSignin) {
       switch (error.type) {
         case "CredentialsSignin":
@@ -41,6 +41,11 @@ export async function login(data: z.infer<typeof signInSchema>) {
             message: "Something went wrong",
           };
       }
+    } else if (error.code === 'login-with-oauth'){
+      return {
+        type: "error",
+        message: "If you previously login with Github, please login with github."
+      };
     } else {
       return {
         type: "error",
@@ -68,7 +73,8 @@ export async function saveUser(data: z.infer<typeof signUpSchema>) {
   }
   const hashedPassword = await bcrypt.hash(password, 10);
   const response = await createUser(username, email, hashedPassword);
-  return response
+  console.log("response", response);
+  return response;
 }
 
 const UsernameQuerySchema = z.object({

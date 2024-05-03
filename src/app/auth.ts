@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthError } from "next-auth";
 import { SupabaseAdapter } from "@auth/supabase-adapter";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
@@ -6,6 +6,10 @@ import type { NextAuthConfig } from "next-auth";
 import { nextAuthClient } from "@/lib/supabase/private";
 import bcrypt from "bcryptjs";
 import { findUserById, loginUser } from "@/db/user";
+
+class InvalidTypeError extends AuthError {
+  code = "login-with-oauth";
+}
 
 let url = process.env.SUPABASE_URL as string;
 let secret = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
@@ -25,15 +29,23 @@ export const config = {
       },
     }),
     Credentials({
-      async authorize(credentials:any) {
-        const user = await loginUser(
-          credentials.identifier,
-          credentials.password
-        );
-        if (!user) {
-          return null;
+      async authorize(credentials: any) {
+        try {
+          const user = await loginUser(
+            credentials.identifier,
+            credentials.password
+          );
+          if (!user) {
+            return null;
+          }
+          return user;
+        } catch (error: any) {
+          if (error instanceof AuthError) {
+            throw new InvalidTypeError(error.message);
+          } else {
+            throw error;
+          }
         }
-        return user;
       },
     }),
   ],
@@ -43,7 +55,6 @@ export const config = {
   }),
   callbacks: {
     async jwt({ token }) {
-      // console.log("token", token)
       const user = await findUserById(token.sub as string);
       if (user) {
         token.isVerified = user.isVerified;

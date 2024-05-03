@@ -1,5 +1,4 @@
 'use client';
-import { useFormState } from 'react-dom';
 import { ApiResponse } from '@/types/ApiResponse';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -82,7 +81,7 @@ export default function SignUpForm() {
           description: response?.message,
         });
       }
-      // router.replace(`/verify/${username}`);
+      router.replace(`/login`);
 
       setIsSubmitting(false);
     } catch (error) {
