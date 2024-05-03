@@ -3,8 +3,6 @@ import { SupabaseAdapter } from "@auth/supabase-adapter";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import type { NextAuthConfig } from "next-auth";
-import { nextAuthClient } from "@/lib/supabase/private";
-import bcrypt from "bcryptjs";
 import { findUserById, loginUser } from "@/db/user";
 
 class InvalidTypeError extends AuthError {

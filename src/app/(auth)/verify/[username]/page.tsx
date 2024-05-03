@@ -1,22 +1,21 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import { ApiResponse } from '@/types/ApiResponse';
-import { zodResolver } from '@hookform/resolvers/zod';
-import axios, { AxiosError } from 'axios';
-import { useParams, useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { verifySchema } from '@/schemas/verifySchema';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useParams, useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { verifySchema } from "@/schemas/verifySchema";
+import { resendCode, verifyCode } from "@/actions/auth";
 
 export default function VerifyAccount() {
   const router = useRouter();
@@ -27,28 +26,36 @@ export default function VerifyAccount() {
   });
 
   const onSubmit = async (data: z.infer<typeof verifySchema>) => {
-    try {
-      const response = await axios.post<ApiResponse>(`/api/verify-code`, {
-        username: params.username,
-        code: data.code,
-      });
+    const response = await verifyCode(params.username, data.code);
 
+    if (response.type === "error") {
       toast({
-        title: 'Success',
-        description: response.data.message,
+        title: "Verification Failed",
+        description: response.message,
+        variant: "destructive",
       });
-
-      router.replace('/sign-in');
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
+    } else {
       toast({
-        title: 'Verification Failed',
-        description:
-          axiosError.response?.data.message ??
-          'An error occurred. Please try again.',
-        variant: 'destructive',
+        title: "Verification Successful",
+        description: response.message,
+      });
+      router.replace("/sign-in");
+    }
+  };
+
+  const handleBtnClick = async () => {
+    const response = await resendCode(params.username);
+    if (response.type === "error") {
+      toast({
+        title: "Resend Failed",
+        description: response.message,
+        variant: "destructive",
       });
     }
+    toast({
+      title: "Resend Successful",
+      description: response.message,
+    });
   };
 
   return (
@@ -76,6 +83,7 @@ export default function VerifyAccount() {
             <Button type="submit">Verify</Button>
           </form>
         </Form>
+        <Button onClick={handleBtnClick}>Resend code</Button>
       </div>
     </div>
   );

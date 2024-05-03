@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { User } from 'next-auth';
-import { auth, signOut } from '@/app/auth';
+import { auth } from '@/app/auth';
 import { SignOut } from './OauthButton';
 
 export default async function Navbar() {

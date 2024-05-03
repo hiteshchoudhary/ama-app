@@ -44,7 +44,7 @@ export default function SignInForm() {
         title: "Success",
         description: "Logged in successfully",
       });
-      router.replace('/dashboard');
+      router.replace('/dashboard')
     }
   };
 

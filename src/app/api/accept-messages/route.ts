@@ -1,5 +1,4 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]/options';
+import { auth } from '@/app/auth';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
 import { User } from 'next-auth';
@@ -8,7 +7,7 @@ export async function POST(request: Request) {
   // Connect to the database
   await dbConnect();
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user: User = session?.user;
   if (!session || !session.user) {
     return Response.json(
@@ -63,7 +62,7 @@ export async function GET(request: Request) {
   await dbConnect();
 
   // Get the user session
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user;
 
   // Check if the user is authenticated

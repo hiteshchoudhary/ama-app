@@ -15,6 +15,15 @@ export const findUserByEmail = async (email: string) => {
   return data;
 };
 
+export const getUserEmail = async (username: string) => {
+  const { data } = await nextAuthClient
+    .from("users")
+    .select("email")
+    .eq("username", username)
+    .single();
+  return data ? data.email : null;
+};
+
 export const findUserById = async (id: string) => {
   const { data } = await nextAuthClient
     .from("users")
@@ -34,6 +43,7 @@ export const findUserByUsername = async (username: string) => {
 };
 
 export const loginUser = async (identifier: string, password: string) => {
+  // check if user is sign up with oauth
   const { data: user } = await nextAuthClient
     .from("users")
     .select("*")
@@ -50,8 +60,6 @@ export const loginUser = async (identifier: string, password: string) => {
     .select("*")
     .or(`username.eq.${identifier},email.eq.${identifier}`)
     .single();
-
-  // check if user is sign up with oauth
 
   if (!data) {
     return null;

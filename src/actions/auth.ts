@@ -7,7 +7,7 @@ import { nextAuthClient } from "@/lib/supabase/private";
 import { signInSchema } from "@/schemas/signInSchema";
 import { CredentialsSignin } from "next-auth";
 import { signIn } from "@/app/auth";
-import { createUser } from "@/db/user";
+import { createUser, findUserByUsername, getUserEmail } from "@/db/user";
 
 export async function login(data: z.infer<typeof signInSchema>) {
   const validateFields = signInSchema.safeParse(data);
@@ -41,10 +41,11 @@ export async function login(data: z.infer<typeof signInSchema>) {
             message: "Something went wrong",
           };
       }
-    } else if (error.code === 'login-with-oauth'){
+    } else if (error.code === "login-with-oauth") {
       return {
         type: "error",
-        message: "If you previously login with Github, please login with github."
+        message:
+          "If you previously login with Github, please login with github.",
       };
     } else {
       return {
@@ -63,7 +64,12 @@ export async function saveUser(data: z.infer<typeof signUpSchema>) {
     .or(`username.eq.${username},email.eq.${email}`)
     .eq("isVerified", true);
 
-  console.log("user", user);
+  if (error) {
+    return {
+      type: "error",
+      message: "Database Error: Failed to check user.",
+    };
+  }
 
   if (user?.length !== 0) {
     return {
@@ -73,7 +79,34 @@ export async function saveUser(data: z.infer<typeof signUpSchema>) {
   }
   const hashedPassword = await bcrypt.hash(password, 10);
   const response = await createUser(username, email, hashedPassword);
-  console.log("response", response);
+  if (response.type === "error") {
+    return response;
+  }
+  let token = Math.floor(100000 + Math.random() * 900000).toString();
+  let expires = new Date();
+  expires.setMinutes(expires.getMinutes() + 15);
+
+  // save token to the verifyCode table
+  const { error: verificationError } = await nextAuthClient
+    .from("verification_tokens")
+    .upsert([{ identifier: username, token, expires }]);
+
+  if (verificationError) {
+    return {
+      type: "error",
+      message: "Database Error: Failed to send verification token.",
+    };
+  }
+
+  const emailResponse = await sendVerificationEmail(email, username, token);
+
+  if (!emailResponse.success) {
+    return {
+      type: "error",
+      message: "Failed to send verification email",
+    };
+  }
+
   return response;
 }
 
@@ -123,4 +156,106 @@ export async function checkUniqueEmail(username: string) {
       message: "An error occurred while checking the username.",
     };
   }
+}
+
+export async function verifyCode(username: string, code: string) {
+  const { data, error: verificationError } = await nextAuthClient
+    .from("verification_tokens")
+    .select("*")
+    .eq("identifier", username)
+    .single();
+  if (!data) {
+    return {
+      type: "error",
+      message: "User not found",
+    };
+  }
+  if (verificationError) {
+    return {
+      type: "error",
+      message: "Database Error: Failed to check user.",
+    };
+  }
+
+  // check the code and
+  if (data.token !== code) {
+    return {
+      type: "error",
+      message: "Invalid code",
+    };
+  }
+
+  // expiration time
+  if (new Date(data.expires) < new Date()) {
+    return {
+      type: "error",
+      message: "Code expired",
+    };
+  }
+
+  // update the user
+  const { error } = await nextAuthClient
+    .from("users")
+    .update({
+      isVerified: true,
+      emailVerified: new Date(),
+      isAcceptingMessages: true,
+    })
+    .eq("username", username);
+
+  if (error) {
+    return {
+      type: "error",
+      message: "Database Error: Failed to verify user.",
+    };
+  }
+
+  return {
+    type: "success",
+    message: "Email verified",
+  };
+}
+
+export async function resendCode(username: string) {
+  let token = Math.floor(100000 + Math.random() * 900000).toString();
+  let expires = new Date();
+  expires.setMinutes(expires.getMinutes() + 15);
+
+  // update the user
+  const { error } = await nextAuthClient
+    .from("verification_tokens")
+    .update({
+      token,
+      expires,
+    })
+    .eq("identifier", username);
+
+  if (error) {
+    return {
+      type: "error",
+      message: "Database Error: Failed to resend code.",
+    };
+  }
+
+  const email = await getUserEmail(username);
+  if (!email) {
+    return {
+      type: "error",
+      message: "User not found",
+    };
+  }
+
+  const emailResponse = await sendVerificationEmail(email, username, token);
+
+  if (!emailResponse.success) {
+    return {
+      type: "error",
+      message: "Failed to send verification email",
+    };
+  }
+
+  return {
+    type: "success",
+    message: "Code resent",
+  };
 }
