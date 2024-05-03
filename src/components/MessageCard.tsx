@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import axios, { AxiosError } from "axios";
+import React from "react";
 import { X } from "lucide-react";
-import { Message } from "@/model/User";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -18,31 +16,22 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "./ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { ApiResponse } from "@/types/ApiResponse";
+import { deleteMessage } from "@/actions/message";
 
-type MessageCardProps = {
-  message: Message;
-  onMessageDelete?: (messageId: string) => void;
-};
-
-export function MessageCard({ message, onMessageDelete }: MessageCardProps) {
+export function MessageCard({ message }: { message: any }) {
   const { toast } = useToast();
 
   const handleDeleteConfirm = async () => {
-    try {
-      const response = await axios.delete<ApiResponse>(
-        `/api/delete-message/${message._id}`
-      );
+    const response = await deleteMessage(message.id);
+    if (response.type === "error") {
       toast({
-        title: response.data.message,
-      });
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
-      toast({
-        title: "Error",
-        description:
-          axiosError.response?.data.message ?? "Failed to delete message",
+        title: response.message,
         variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Message deleted successfully",
       });
     }
   };
