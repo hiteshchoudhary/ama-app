@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { User } from "next-auth";
 import { auth } from "@/app/auth";
-import { SignOut } from "./OauthButton";
+import { SignOutBtn } from "./OauthButton";
 
 export default async function Navbar() {
   const session = await auth();
@@ -23,7 +23,7 @@ export default async function Navbar() {
                 Dashboard
               </Button>
             </Link>
-            <SignOut className="w-full md:w-auto text-black" />
+            <SignOutBtn className="w-full md:w-auto text-black" />
           </div>
         ) : (
           <Link href="/sign-in">

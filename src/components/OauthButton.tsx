@@ -1,15 +1,10 @@
 // import { signOut } from "next-auth/react";
-import { signOut } from "@/app/auth";
+import { SignIn, SignOut } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 
-export function SignOut(props: React.ComponentPropsWithRef<typeof Button>) {
+export function SignOutBtn(props: React.ComponentPropsWithRef<typeof Button>) {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signOut();
-      }}
-    >
+    <form action={SignOut}>
       <Button variant="destructive" {...props}>
         Sign Out
       </Button>
@@ -17,5 +12,13 @@ export function SignOut(props: React.ComponentPropsWithRef<typeof Button>) {
     // <Button variant='destructive' onClick={() => signOut()} {...props}>
     //   Sign Out
     // </Button>
+  );
+}
+
+export function SignInBtn(props: React.ComponentPropsWithRef<typeof Button>) {
+  return (
+    <form action={SignIn}>
+      <Button {...props}>Sign In with Github</Button>
+    </form>
   );
 }

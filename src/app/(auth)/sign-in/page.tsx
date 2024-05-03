@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { signInSchema } from "@/schemas/signInSchema";
 import { login } from "@/actions/auth";
+import { SignInBtn } from "@/components/OauthButton";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function SignInForm() {
         title: "Success",
         description: "Logged in successfully",
       });
-      router.replace('/dashboard')
+      router.replace("/dashboard");
     }
   };
 
@@ -95,9 +96,10 @@ export default function SignInForm() {
           </p>
         </div>
         <div className="flex flex-col gap-4 justify-center items-center">
-          <Button className="w-full" onClick={() => signIn("github")}>
+          {/* <Button className="w-full" onClick={() => signIn("github")}>
             Sign in with Github
-          </Button>
+          </Button> */}
+          <SignInBtn />
         </div>
       </div>
     </div>

@@ -6,8 +6,16 @@ import { signUpSchema, usernameValidation } from "@/schemas/signUpSchema";
 import { nextAuthClient } from "@/lib/supabase/private";
 import { signInSchema } from "@/schemas/signInSchema";
 import { CredentialsSignin } from "next-auth";
-import { signIn } from "@/app/auth";
+import { signIn, signOut } from "@/app/auth";
 import { createUser, findUserByUsername, getUserEmail } from "@/db/user";
+
+export async function SignIn() {
+  await signIn("github", { redirectTo: "/dashboard" });
+}
+
+export async function SignOut() {
+  await signOut();
+}
 
 export async function login(data: z.infer<typeof signInSchema>) {
   const validateFields = signInSchema.safeParse(data);
