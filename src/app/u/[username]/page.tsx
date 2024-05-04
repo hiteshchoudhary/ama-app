@@ -51,11 +51,10 @@ export default function SendMessage() {
       toast({
         title: response.message,
       });
-
       // Reset the form and set isLoading to false
       form.reset({ ...form.getValues(), content: "" });
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   return (
