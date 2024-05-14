@@ -39,8 +39,8 @@
     "resend": "^2.0.0-canary.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
-    "usehooks-ts": "^2.9.1",
-    "zod": "^3.22.4"
+    "usehooks-ts": "^2.16.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
