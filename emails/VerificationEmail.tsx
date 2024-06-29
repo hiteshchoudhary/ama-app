@@ -10,6 +10,9 @@ import {
   Button,
 } from '@react-email/components';
 
+//please use this command `npm install react-email @react-email/components -E`
+
+
 interface VerificationEmailProps {
   username: string;
   otp: string;
